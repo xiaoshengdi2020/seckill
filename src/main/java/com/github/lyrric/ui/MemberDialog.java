@@ -61,6 +61,10 @@ public class MemberDialog extends JDialog {
         new Thread(()->{
             try {
                 List<Member> members = new HttpService().getMembers();
+
+                for (Member member : members) {
+                    System.out.println(member);
+                }
                 setTitle("请选择成员");
                 table.removeAll();
                 if(members.isEmpty()){

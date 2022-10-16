@@ -86,6 +86,7 @@ public class HttpService {
     public List<Member> getMembers() throws IOException, BusinessException {
         String path = baseUrl + "/seckill/linkman/findByUserId.do";
         String json = get(path, null, null);
+        logger.info(json);
         return  JSONObject.parseArray(json, Member.class);
     }
     /***
@@ -143,11 +144,19 @@ public class HttpService {
         get.setConfig(requestConfig);
         get.setHeaders(headers.toArray(new Header[0]));
         CloseableHttpClient httpClient = HttpClients.createDefault();
+        System.out.println(get.getHeaders("Cookie"));
+        Header[] allHeaders = get.getAllHeaders();
+
+        for (Header allHeader : allHeaders) {
+            System.out.println(allHeader.getValue());
+
+        }
         CloseableHttpResponse response = httpClient.execute(get);
         dealHeader(response);
         HttpEntity httpEntity = response.getEntity();
         String json =  EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
         JSONObject jsonObject = JSONObject.parseObject(json);
+        System.out.println(json);
         if("0000".equals(jsonObject.get("code"))){
             return jsonObject.getString("data");
         }else{
@@ -168,16 +177,18 @@ public class HttpService {
 
     private List<Header> getCommonHeader(){
         List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/1042 MicroMessenger/7.0.15.1680(0x27000F34) Process/appbrand0 WeChat/arm32 NetType/WIFI Language/zh_CN ABI/arm32"));
+        headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (iPad; CPU OS 15_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.29(0x18001d30) NetType/WIFI Language/zh_CN\n"));
         headers.add(new BasicHeader("Referer", "https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html"));
         headers.add(new BasicHeader("tk", Config.tk));
         headers.add(new BasicHeader("Accept","application/json, text/plain, */*"));
         headers.add(new BasicHeader("Host","miaomiao.scmttec.com"));
-        if(!Config.cookie.isEmpty()){
-            String cookie = String.join("; ", new ArrayList<>(Config.cookie.values()));
-            logger.info("cookie is {}", cookie);
-            headers.add(new BasicHeader("Cookie", cookie));
-        }
+        //headers.add(new BasicHeader("Cookie","tgw_l7_route=310b1314d3b7b84666fb433380f2a0d4; _xxhm_=%7B%22id%22%3A14428383%2C%22mobile%22%3A%2215997353275%22%2C%22nickName%22%3A%22%E6%B5%81%E8%BF%9E%22%2C%22headerImg%22%3A%22https%3A%2F%2Fthirdwx.qlogo.cn%2Fmmopen%2Fvi_32%2F9GqfVRV24biaDudggxd87NtMbNXqU1jcVodNN6KUbR1xDaBn3U7ygzosXbbicEZ6O541e5UYCT1dV5ZLU1hAYNwA%2F132%22%2C%22regionCode%22%3A%22420111%22%2C%22name%22%3A%22%E5%8F%B8*%E8%83%9C%22%2C%22uFrom%22%3A%22syswhxg210319%22%2C%22wxSubscribed%22%3A1%2C%22birthday%22%3A%222000-07-17+02%3A00%3A00%22%2C%22sex%22%3A1%2C%22hasPassword%22%3Atrue%2C%22birthdayStr%22%3A%222000-07-17%22%7D; _xzkj_=wxapptoken:10:4481538e5d4f545750a4d5ac19bd2c87_76f5bab51f8e68e3686960f4fde73663; c7f4=e0398f5e8c3254df2f; 6189=ef77cffd51ea0a9fec; 7b6e=c68ac50c6f3d17c8ea; 1bc4=087f2d04432642e83a; 2c0b=37eff5b6c68d693dc6\n"));
+
+//        if(!Config.cookie.isEmpty()){
+//            String cookie = String.join("; ", new ArrayList<>(Config.cookie.values()));
+//            logger.info("cookie is {}", cookie);
+//            headers.add(new BasicHeader("Cookie", cookie));
+//        }
         return headers;
     }
 
